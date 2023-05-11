@@ -3,6 +3,7 @@ import math
 import numpy as np
 class Arm:
     def create_arms(self, numArms, maxReward):
+        self.numArms = numArms
         fakeArms = []
         for _ in range(numArms):
             num1 = round(random.uniform(0, maxReward), 4)
@@ -10,9 +11,10 @@ class Arm:
             fakeArm = [num1, num2]
             fakeArms.append(fakeArm)
         self.fakeRewards = fakeArms
+        self.maxReward = maxReward
         self.sumFakeRewards = sum([sum(fakeArm) for fakeArm in fakeArms])
-
-    def get_reward(self, arm, adversarial_prob):
+        
+    def get_makespan(self, arm, adversarial_prob):
         if random.random() < adversarial_prob:
             return round(random.uniform(0, self.maxReward), 4)
         else:
@@ -26,7 +28,7 @@ class MabAdversarial:
         self.gamma = gamma
         self.T = T
         self.weights = [1.0] * self.arms.numArms
-        self.rewards = [1.0] * numArms
+        self.rewards = [1.0] * self.arms.numArms
         self.total_reward = 0.0
         self.arm_counts = [0] * numArms
         self.rewards_history = [[] for _ in range(numArms)]
@@ -49,7 +51,7 @@ class MabAdversarial:
             arm = self.select_arm(t)
             reward = self.arms.get_reward(arm, self.adversarial_prob)
             self.rewards[arm] += reward
-            self.weights[arm] = math.exp(self.gamma * (self.rewards[arm] / max(1, self.arm_counts[arm])))
+            self.weights[arm] = math.exp(self.gamma * self.rewards[arm] / self.T)
             self.arm_counts[arm] += 1
             self.rewards_history[arm].append(reward)
             self.choicesArms.append(arm)
