@@ -14,7 +14,7 @@ class Arm:
         self.maxReward = maxReward
         self.sumFakeRewards = sum([sum(fakeArm) for fakeArm in fakeArms])
         
-    def get_reward(self, arm, adversarial_prob):
+    def get_makespan(self, arm, adversarial_prob):
         if random.random() < adversarial_prob:
             return round(random.uniform(0, self.maxReward), 4)
         else:
@@ -22,21 +22,20 @@ class Arm:
 
 class MabAdversarial:
     def __init__(self, numArms, maxReward, gamma, T, adversarial_prob):
-        self.adversarial_prob = adversarial_prob
         self.arms = Arm()
         self.arms.create_arms(numArms, maxReward)
         self.gamma = gamma
         self.T = T
         self.weights = [1.0] * self.arms.numArms
         self.rewards = [1.0] * self.arms.numArms
-        self.total_reward = 0.0
-        self.arm_counts = [0] * numArms
-        self.rewards_history = [[] for _ in range(numArms)]
+        self.arm_counts = [0] * self.arms.numArms
+        self.rewards_history = [[] for _ in range(self.arms.numArms)]
         self.fakeRewards = self.arms.fakeRewards
         self.choicesArms = []
         self.allRewards = []
         self.regret = []
         self.mean_rewards = []
+        self.adversarial_prob = adversarial_prob
         self.results = []
 
     def select_arm(self, t):
@@ -49,12 +48,12 @@ class MabAdversarial:
     def run(self):
         for t in range(self.T):
             arm = self.select_arm(t)
-            reward = self.arms.get_reward(arm, self.adversarial_prob)
+            reward = self.arms.get_makespan(arm, self.adversarial_prob)
             self.rewards[arm] += reward
-            self.weights[arm] = math.exp(self.gamma * self.rewards[arm] / self.T)
+            self.weights[arm] = math.exp(self.gamma * (self.rewards[arm] / max(1, self.arm_counts[arm])))
             self.arm_counts[arm] += 1
             self.rewards_history[arm].append(reward)
-            self.choicesArms.append(arm)
+            self.choicesArms.append(arm)           
             self.results.append((t+1, arm, reward))
         
         self.mean_rewards = [np.mean(rewards) if rewards else 0 for rewards in self.rewards_history]
