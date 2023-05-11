@@ -8,7 +8,7 @@ import time
 import pandas as pd
 import plotly.graph_objects as go
 
-st.set_page_config("MAB-Adversarial", "🐙😍", layout="wide")
+st.set_page_config("MAB-Adversarial", "😍", layout="wide")
 image = Image.open('img/mab.png')
 logo = Image.open('img/logo-unifil.png')
 col1, col2, col3 = st.columns([6, 18, 6])
