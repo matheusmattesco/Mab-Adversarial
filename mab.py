@@ -14,7 +14,7 @@ class Arm:
         self.maxReward = maxReward
         self.sumFakeRewards = sum([sum(fakeArm) for fakeArm in fakeArms])
         
-    def get_makespan(self, arm, adversarial_prob):
+    def get_reward(self, arm, adversarial_prob):
         if random.random() < adversarial_prob:
             return round(random.uniform(0, self.maxReward), 4)
         else:
