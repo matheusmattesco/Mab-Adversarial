@@ -19,6 +19,9 @@ class Arm:
             return round(random.uniform(0, self.maxReward), 4)
         else:
             return round(random.uniform(self.fakeRewards[arm][0], self.fakeRewards[arm][1]), 4)
+    
+    def get_reward(self, arm):
+        return round(random.uniform(self.fakeRewards[arm][0], self.fakeRewards[arm][1]), 4)
 
 class MabAdversarial:
     def __init__(self, numArms, maxReward, gamma, T, adversarial_prob):
@@ -29,14 +32,18 @@ class MabAdversarial:
         self.weights = [1.0] * self.arms.numArms
         self.rewards = [1.0] * self.arms.numArms
         self.arm_counts = [0] * self.arms.numArms
+        self.arm_counts2 = [0] * self.arms.numArms
         self.rewards_history = [[] for _ in range(self.arms.numArms)]
         self.fakeRewards = self.arms.fakeRewards
         self.choicesArms = []
         self.allRewards = []
+        self.allRewards2 = []
         self.regret = []
+        self.regret2 = []
         self.mean_rewards = []
         self.adversarial_prob = adversarial_prob
         self.results = []
+        self.results2= []
 
     def select_arm(self, t):
         exploration_prob = max(0, self.gamma * t / self.T) 
@@ -62,7 +69,7 @@ class MabAdversarial:
         weights_means = [weight / sum(self.weights) for weight in self.weights]
         
         return self.mean_rewards, self.arm_counts, self.allRewards, self.regret, self.fakeRewards, self.results
-        
+    
     def run_no_adversarial(self):
         for t in range (self.T):
             arm = self.select_arm(t)
