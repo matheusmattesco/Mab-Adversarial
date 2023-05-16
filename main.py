@@ -63,7 +63,9 @@ with co3:
                 time.sleep(2)
                 mab = MabAdversarial(numArms=numArms, maxReward=maxReward, gamma=gamma, T=T, adversarial_prob=adversarial_prob)
                 mean_rewards, arm_counts, allRewards, regret, fakeRewards, results = mab.run()
+                mean_rewards2, arm_counts2, allRewards2, regret2, results2 = mab.run_no_adversarial()
             st.success('Concluído!')
+            
             rewards1, rewards2 = zip(*fakeRewards)
             data = {'Braço': [f'Braço {i+1}' for i in range(len(arm_counts))],
                     'Seleções': arm_counts,
@@ -73,12 +75,27 @@ with co3:
             df = pd.DataFrame(data)
             st.write(df)
 
+            data = {'Braço': [f'Braço {i+1}' for i in range(len(arm_counts2))],
+                    'Seleções': arm_counts2,
+                    'Recompensas Médias': mean_rewards2,
+                    'Recompensas Min Estimadas': rewards1,
+                    'Recompensas Max Esperada': rewards2}
+            df2 = pd.DataFrame(data)
+            st.write(df2)
+
 
             total_selecoes = sum(arm_counts)
             porcentagens = [count / total_selecoes * 100 for count in arm_counts]
             labels = [f'Braço {i+1}' for i in range(len(porcentagens))]
             fig = go.Figure(data=[go.Pie(labels=labels, values=porcentagens, hole=0.3)])
             fig.update_layout(title='Porcentagem de seleções por braço')
+            st.plotly_chart(fig)
+
+            total_selecoes = sum(arm_counts2)
+            porcentagens = [count / total_selecoes * 100 for count in arm_counts2]
+            labels = [f'Braço {i+1}' for i in range(len(porcentagens))]
+            fig = go.Figure(data=[go.Pie(labels=labels, values=porcentagens, hole=0.3)])
+            fig.update_layout(title='Porcentagem de seleções por braço sem Adversarial')
             st.plotly_chart(fig)
 
             df = pd.DataFrame(results, columns=['Interação', 'Braço escolhido', 'Recompensa'])
@@ -91,6 +108,18 @@ with co3:
             for braço, recompensas in recompensas_braços.items():
                 fig.add_trace(go.Scatter(x=recompensas.index, y=recompensas, mode='lines', name=f'Braço {braço+1}'))
             fig.update_layout(title='Grafico de Recompensas', xaxis_title='Interação', yaxis_title='Recompensa')
+            st.plotly_chart(fig)
+
+            df = pd.DataFrame(results2, columns=['Interação', 'Braço escolhido', 'Recompensa'])
+            recompensas_braços = {}
+            for braço in range(numArms):
+                recompensas = df.loc[df['Braço escolhido'] == braço, 'Recompensa']
+                recompensas_braços[braço] = recompensas
+
+            fig = go.Figure()
+            for braço, recompensas in recompensas_braços.items():
+                fig.add_trace(go.Scatter(x=recompensas.index, y=recompensas, mode='lines', name=f'Braço {braço+1}'))
+            fig.update_layout(title='Grafico de Recompensas sem o Adversarial', xaxis_title='Interação', yaxis_title='Recompensa')
             st.plotly_chart(fig)
 
 

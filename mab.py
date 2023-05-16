@@ -62,3 +62,21 @@ class MabAdversarial:
         weights_means = [weight / sum(self.weights) for weight in self.weights]
         
         return self.mean_rewards, self.arm_counts, self.allRewards, self.regret, self.fakeRewards, self.results
+        
+    def run_no_adversarial(self):
+        for t in range (self.T):
+            arm = self.select_arm(t)
+            reward = self.arms.get_reward(arm)
+            self.rewards[arm] += reward
+            self.weights[arm] = math.exp(self.gamma * (self.rewards[arm] / max(1, self.arm_counts2[arm])))
+            self.arm_counts2[arm] += 1
+            self.rewards_history[arm].append(reward)
+            self.choicesArms.append(arm)           
+            self.results2.append((t+1, arm, reward))
+        
+        self.mean_rewards2 = [np.mean(rewards) if rewards else 0 for rewards in self.rewards_history]
+        self.allRewards2 = self.rewards_history
+        self.regret2= [[max(self.fakeRewards[i]) - r for r in rewards] for i, rewards in enumerate(self.allRewards2)]
+        weights_means = [weight / sum(self.weights) for weight in self.weights]
+        
+        return self.mean_rewards2, self.arm_counts2, self.allRewards2, self.regret2, self.results2
