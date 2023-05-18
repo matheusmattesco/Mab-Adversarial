@@ -75,7 +75,7 @@ class MabAdversarial:
             arm = self.select_arm(t)
             reward = self.arms.get_reward(arm)
             self.rewards[arm] += reward
-            self.weights[arm] = math.exp(self.gamma * (self.rewards[arm] / max(1, self.arm_counts2[arm])))
+            self.weights[arm] = math.exp(self.rewards[arm] / max(1, self.arm_counts2[arm]))
             self.arm_counts2[arm] += 1
             self.rewards_history[arm].append(reward)
             self.choicesArms.append(arm)           
